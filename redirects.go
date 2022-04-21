@@ -11,28 +11,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Params is a map of key/value pairs.
-type Params map[string]interface{}
-
-// Has returns true if the param is present.
-func (p *Params) Has(key string) bool {
-	if p == nil {
-		return false
-	}
-
-	_, ok := (*p)[key]
-	return ok
-}
-
-// Get returns the key value.
-func (p *Params) Get(key string) interface{} {
-	if p == nil {
-		return nil
-	}
-
-	return (*p)[key]
-}
-
 // A Rule represents a single redirection or rewrite rule.
 type Rule struct {
 	// From is the path which is matched to perform the rule.
@@ -55,9 +33,6 @@ type Rule struct {
 	// Force is used to force a rewrite or redirect even
 	// when a response (or static file) is present.
 	Force bool
-
-	// Params is an optional arbitrary map of key/value pairs.
-	Params Params
 }
 
 // IsRewrite returns true if the rule represents a rewrite (status 200).
@@ -109,6 +84,10 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 			return nil, errors.Wrapf(err, "missing destination path: %q", line)
 		}
 
+		if len(fields) > 3 {
+			return nil, errors.Wrapf(err, "must match format `from to [status][!]`")
+		}
+
 		// src and dst
 		rule := Rule{
 			From:   fields[0],
@@ -127,11 +106,6 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 			rule.Force = force
 		}
 
-		// params
-		if len(fields) > 3 {
-			rule.Params = parseParams(fields[3:])
-		}
-
 		rules = append(rules, rule)
 	}
 
@@ -142,22 +116,6 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 // ParseString parses the given string.
 func ParseString(s string) ([]Rule, error) {
 	return Parse(strings.NewReader(s))
-}
-
-// parseParams returns parsed param key/value pairs.
-func parseParams(pairs []string) Params {
-	m := make(Params)
-
-	for _, p := range pairs {
-		parts := strings.Split(p, "=")
-		if len(parts) > 1 {
-			m[parts[0]] = parts[1]
-		} else {
-			m[parts[0]] = true
-		}
-	}
-
-	return m
 }
 
 // parseStatus returns the status code and force when "!" suffix is present.

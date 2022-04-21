@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/tj/go-redirects"
+	redirects "github.com/justincjohnson/go-ipfs-redirects"
 )
 
 func Example() {
@@ -35,10 +35,6 @@ func Example() {
 
 		# Forcing
 		/app/*  /app/index.html  200!
-
-		# Params
-		/	/something	302	foo=bar
-		/	/something	302	foo=bar bar=baz
   `))
 
 	enc := json.NewEncoder(os.Stdout)
@@ -50,97 +46,67 @@ func Example() {
 	//     "From": "/home",
 	//     "To": "/",
 	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/blog/my-post.php",
 	//     "To": "/blog/my-post",
 	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/news",
 	//     "To": "/blog",
 	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/google",
 	//     "To": "https://www.google.com",
 	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/home",
 	//     "To": "/",
 	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/my-redirect",
 	//     "To": "/",
 	//     "Status": 302,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/pass-through",
 	//     "To": "/index.html",
 	//     "Status": 200,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/ecommerce",
 	//     "To": "/store-closed",
 	//     "Status": 404,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/*",
 	//     "To": "/index.html",
 	//     "Status": 200,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/api/*",
 	//     "To": "https://api.example.com/:splat",
 	//     "Status": 200,
-	//     "Force": false,
-	//     "Params": null
+	//     "Force": false
 	//   },
 	//   {
 	//     "From": "/app/*",
 	//     "To": "/app/index.html",
 	//     "Status": 200,
-	//     "Force": true,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/",
-	//     "To": "/something",
-	//     "Status": 302,
-	//     "Force": false,
-	//     "Params": {
-	//       "foo": "bar"
-	//     }
-	//   },
-	//   {
-	//     "From": "/",
-	//     "To": "/something",
-	//     "Status": 302,
-	//     "Force": false,
-	//     "Params": {
-	//       "bar": "baz",
-	//       "foo": "bar"
-	//     }
+	//     "Force": true
 	//   }
 	// ]
 }
