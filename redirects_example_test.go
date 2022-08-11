@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	redirects "github.com/justincjohnson/go-ipfs-redirects"
+	redirects "github.com/ipfs-shipyard/go-ipfs-redirects"
 )
 
 func Example() {

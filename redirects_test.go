@@ -3,7 +3,7 @@ package redirects_test
 import (
 	"testing"
 
-	redirects "github.com/justincjohnson/go-ipfs-redirects"
+	redirects "github.com/ipfs-shipyard/go-ipfs-redirects"
 	"github.com/tj/assert"
 )
 
