@@ -1,15 +1,14 @@
-package redirects_test
+package redirects
 
 import (
 	"testing"
 
-	redirects "github.com/ipfs-shipyard/go-ipfs-redirects"
 	"github.com/tj/assert"
 )
 
 func TestRule_IsProxy(t *testing.T) {
 	t.Run("without host", func(t *testing.T) {
-		r := redirects.Rule{
+		r := Rule{
 			From: "/blog",
 			To:   "/blog/engineering",
 		}
@@ -18,7 +17,7 @@ func TestRule_IsProxy(t *testing.T) {
 	})
 
 	t.Run("with host", func(t *testing.T) {
-		r := redirects.Rule{
+		r := Rule{
 			From: "/blog",
 			To:   "https://blog.apex.sh",
 		}
@@ -29,7 +28,7 @@ func TestRule_IsProxy(t *testing.T) {
 
 func TestRule_IsRewrite(t *testing.T) {
 	t.Run("with 3xx", func(t *testing.T) {
-		r := redirects.Rule{
+		r := Rule{
 			From:   "/blog",
 			To:     "/blog/engineering",
 			Status: 302,
@@ -39,7 +38,7 @@ func TestRule_IsRewrite(t *testing.T) {
 	})
 
 	t.Run("with 200", func(t *testing.T) {
-		r := redirects.Rule{
+		r := Rule{
 			From:   "/blog",
 			To:     "/blog/engineering",
 			Status: 200,
@@ -49,7 +48,7 @@ func TestRule_IsRewrite(t *testing.T) {
 	})
 
 	t.Run("with 0", func(t *testing.T) {
-		r := redirects.Rule{
+		r := Rule{
 			From: "/blog",
 			To:   "/blog/engineering",
 		}
