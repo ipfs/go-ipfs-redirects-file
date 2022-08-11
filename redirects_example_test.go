@@ -1,14 +1,12 @@
-package redirects_test
+package redirects
 
 import (
 	"encoding/json"
 	"os"
-
-	redirects "github.com/ipfs-shipyard/go-ipfs-redirects"
 )
 
 func Example() {
-	h := redirects.Must(redirects.ParseString(`
+	h := Must(ParseString(`
 		# Implicit 301 redirects
 		/home              /
 		/blog/my-post.php  /blog/my-post
