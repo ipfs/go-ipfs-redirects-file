@@ -1,6 +1,7 @@
 package redirects
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/tj/assert"
@@ -54,5 +55,15 @@ func TestRule_IsRewrite(t *testing.T) {
 		}
 
 		assert.False(t, r.IsRewrite())
+	})
+}
+
+func TestParse(t *testing.T) {
+	t.Run("with illegal force", func(t *testing.T) {
+		_, err := Parse(strings.NewReader(`
+		/home / 301!
+		`))
+
+		assert.Error(t, err, "forced redirects should return an error")
 	})
 }

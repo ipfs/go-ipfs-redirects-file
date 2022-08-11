@@ -30,9 +30,6 @@ func Example() {
 
 		# Proxying
 		/api/*  https://api.example.com/:splat  200
-
-		# Forcing
-		/app/*  /app/index.html  200!
   `))
 
 	enc := json.NewEncoder(os.Stdout)
@@ -43,68 +40,52 @@ func Example() {
 	//   {
 	//     "From": "/home",
 	//     "To": "/",
-	//     "Status": 301,
-	//     "Force": false
+	//     "Status": 301
 	//   },
 	//   {
 	//     "From": "/blog/my-post.php",
 	//     "To": "/blog/my-post",
-	//     "Status": 301,
-	//     "Force": false
+	//     "Status": 301
 	//   },
 	//   {
 	//     "From": "/news",
 	//     "To": "/blog",
-	//     "Status": 301,
-	//     "Force": false
+	//     "Status": 301
 	//   },
 	//   {
 	//     "From": "/google",
 	//     "To": "https://www.google.com",
-	//     "Status": 301,
-	//     "Force": false
+	//     "Status": 301
 	//   },
 	//   {
 	//     "From": "/home",
 	//     "To": "/",
-	//     "Status": 301,
-	//     "Force": false
+	//     "Status": 301
 	//   },
 	//   {
 	//     "From": "/my-redirect",
 	//     "To": "/",
-	//     "Status": 302,
-	//     "Force": false
+	//     "Status": 302
 	//   },
 	//   {
 	//     "From": "/pass-through",
 	//     "To": "/index.html",
-	//     "Status": 200,
-	//     "Force": false
+	//     "Status": 200
 	//   },
 	//   {
 	//     "From": "/ecommerce",
 	//     "To": "/store-closed",
-	//     "Status": 404,
-	//     "Force": false
+	//     "Status": 404
 	//   },
 	//   {
 	//     "From": "/*",
 	//     "To": "/index.html",
-	//     "Status": 200,
-	//     "Force": false
+	//     "Status": 200
 	//   },
 	//   {
 	//     "From": "/api/*",
 	//     "To": "https://api.example.com/:splat",
-	//     "Status": 200,
-	//     "Force": false
-	//   },
-	//   {
-	//     "From": "/app/*",
-	//     "To": "/app/index.html",
-	//     "Status": 200,
-	//     "Force": true
+	//     "Status": 200
 	//   }
 	// ]
 }

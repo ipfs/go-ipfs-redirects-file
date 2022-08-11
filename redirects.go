@@ -3,6 +3,7 @@ package redirects
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net/url"
 	"strconv"
@@ -29,10 +30,6 @@ type Rule struct {
 	// When proxying this field is ignored.
 	//
 	Status int
-
-	// Force is used to force a rewrite or redirect even
-	// when a response (or static file) is present.
-	Force bool
 }
 
 // IsRewrite returns true if the rule represents a rewrite (status 200).
@@ -97,13 +94,12 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 
 		// status
 		if len(fields) > 2 {
-			code, force, err := parseStatus(fields[2])
+			code, err := parseStatus(fields[2])
 			if err != nil {
 				return nil, errors.Wrapf(err, "parsing status %q", fields[2])
 			}
 
 			rule.Status = code
-			rule.Force = force
 		}
 
 		rules = append(rules, rule)
@@ -118,13 +114,13 @@ func ParseString(s string) ([]Rule, error) {
 	return Parse(strings.NewReader(s))
 }
 
-// parseStatus returns the status code and force when "!" suffix is present.
-func parseStatus(s string) (code int, force bool, err error) {
+// parseStatus returns the status code.
+func parseStatus(s string) (code int, err error) {
 	if strings.HasSuffix(s, "!") {
-		force = true
-		s = strings.Replace(s, "!", "", -1)
+		// See https://docs.netlify.com/routing/redirects/rewrites-proxies/#shadowing
+		return -1, fmt.Errorf("forced redirects (and \"shadowing\") are not supported by IPFS gateways")
 	}
 
 	code, err = strconv.Atoi(s)
-	return
+	return code, err
 }
