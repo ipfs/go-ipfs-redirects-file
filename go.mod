@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/pkg/errors v0.9.1
 	github.com/tj/assert v0.0.3
+	github.com/ucarion/urlpath v0.0.0-20200424170820-7ccc79b76bbb
 )
 
 require (

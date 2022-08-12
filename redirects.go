@@ -3,12 +3,14 @@ package redirects
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/ucarion/urlpath"
 )
 
 // A Rule represents a single redirection or rewrite rule.
@@ -29,10 +31,6 @@ type Rule struct {
 	// When proxying this field is ignored.
 	//
 	Status int
-
-	// Force is used to force a rewrite or redirect even
-	// when a response (or static file) is present.
-	Force bool
 }
 
 // IsRewrite returns true if the rule represents a rewrite (status 200).
@@ -81,11 +79,11 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 
 		// missing dst
 		if len(fields) <= 1 {
-			return nil, errors.Wrapf(err, "missing destination path: %q", line)
+			return nil, fmt.Errorf("missing destination path: %q", line)
 		}
 
 		if len(fields) > 3 {
-			return nil, errors.Wrapf(err, "must match format `from to [status][!]`")
+			return nil, fmt.Errorf("must match format `from to [status][!]`")
 		}
 
 		// src and dst
@@ -97,13 +95,12 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 
 		// status
 		if len(fields) > 2 {
-			code, force, err := parseStatus(fields[2])
+			code, err := parseStatus(fields[2])
 			if err != nil {
 				return nil, errors.Wrapf(err, "parsing status %q", fields[2])
 			}
 
 			rule.Status = code
-			rule.Force = force
 		}
 
 		rules = append(rules, rule)
@@ -118,13 +115,29 @@ func ParseString(s string) ([]Rule, error) {
 	return Parse(strings.NewReader(s))
 }
 
-// parseStatus returns the status code and force when "!" suffix is present.
-func parseStatus(s string) (code int, force bool, err error) {
+// parseStatus returns the status code.
+func parseStatus(s string) (code int, err error) {
 	if strings.HasSuffix(s, "!") {
-		force = true
-		s = strings.Replace(s, "!", "", -1)
+		// See https://docs.netlify.com/routing/redirects/rewrites-proxies/#shadowing
+		return -1, fmt.Errorf("forced redirects (or \"shadowing\") are not supported by IPFS gateways")
 	}
 
 	code, err = strconv.Atoi(s)
-	return
+	return code, err
+}
+
+// ReplacePlaceholders replaces all placeholders from the match in the provided string.
+func ReplacePlaceholders(to string, match urlpath.Match) string {
+	if len(match.Params) > 0 {
+		for key, value := range match.Params {
+			to = strings.ReplaceAll(to, ":"+key, value)
+		}
+	}
+
+	return to
+}
+
+// ReplaceSplat replaces all splats from the match in the provided string.
+func ReplaceSplat(to string, match urlpath.Match) string {
+	return strings.ReplaceAll(to, ":splat", match.Trailing)
 }

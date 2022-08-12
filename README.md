@@ -7,10 +7,10 @@ Currently this is a subset of Netlify's [redirects format](https://www.netlify.c
 The details of the supported functionality are still in flux and will eventually be included in a [spec](https://github.com/ipfs/specs).
 
 ## Format
-Currently only supports `from`, `to`, `status` and `force`.
+Currently only supports `from`, `to` and `status`.
 
 ```
-from to [status][!]
+from to [status]
 ```
 
 ## Example
@@ -39,9 +39,6 @@ from to [status][!]
 
 # Proxying
 /api/*  https://api.example.com/:splat  200
-
-# Forced redirect, even if the from path exists
-/app/*  /app/index.html  200!
 ```
 
 ---
