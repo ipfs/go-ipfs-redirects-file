@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/ucarion/urlpath"
 )
 
 // A Rule represents a single redirection or rewrite rule.
@@ -123,4 +124,20 @@ func parseStatus(s string) (code int, err error) {
 
 	code, err = strconv.Atoi(s)
 	return code, err
+}
+
+// ReplacePlaceholders replaces all placeholders from the match in the provided string.
+func ReplacePlaceholders(to string, match urlpath.Match) string {
+	if len(match.Params) > 0 {
+		for key, value := range match.Params {
+			to = strings.ReplaceAll(to, ":"+key, value)
+		}
+	}
+
+	return to
+}
+
+// ReplaceSplat replaces all splats from the match in the provided string.
+func ReplaceSplat(to string, match urlpath.Match) string {
+	return strings.ReplaceAll(to, ":splat", match.Trailing)
 }
