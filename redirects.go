@@ -78,11 +78,11 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 
 		// missing dst
 		if len(fields) <= 1 {
-			return nil, errors.Wrapf(err, "missing destination path: %q", line)
+			return nil, fmt.Errorf("missing destination path: %q", line)
 		}
 
 		if len(fields) > 3 {
-			return nil, errors.Wrapf(err, "must match format `from to [status][!]`")
+			return nil, fmt.Errorf("must match format `from to [status][!]`")
 		}
 
 		// src and dst
