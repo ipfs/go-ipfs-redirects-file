@@ -48,6 +48,41 @@ func (r *Rule) IsProxy() bool {
 	return u.Host != ""
 }
 
+// MatchAndExpandPlaceholders expands placeholders in `r.To` and returns true if the provided path matches.
+// Otherwise it returns false.
+func (r *Rule) MatchAndExpandPlaceholders(urlPath string) bool {
+	// get rule.From, trim trailing slash, ...
+	fromPath := urlpath.New(strings.TrimSuffix(r.From, "/"))
+	match, ok := fromPath.Match(urlPath)
+
+	if !ok {
+		return false
+	}
+
+	// We have a match!  Perform substitution and return the updated rule
+	toPath := r.To
+	toPath = replacePlaceholders(toPath, match)
+	toPath = replaceSplat(toPath, match)
+
+	r.To = toPath
+
+	return true
+}
+
+func replacePlaceholders(to string, match urlpath.Match) string {
+	if len(match.Params) > 0 {
+		for key, value := range match.Params {
+			to = strings.ReplaceAll(to, ":"+key, value)
+		}
+	}
+
+	return to
+}
+
+func replaceSplat(to string, match urlpath.Match) string {
+	return strings.ReplaceAll(to, ":splat", match.Trailing)
+}
+
 // Must parse utility.
 func Must(v []Rule, err error) []Rule {
 	if err != nil {
@@ -124,20 +159,4 @@ func parseStatus(s string) (code int, err error) {
 
 	code, err = strconv.Atoi(s)
 	return code, err
-}
-
-// ReplacePlaceholders replaces all placeholders from the match in the provided string.
-func ReplacePlaceholders(to string, match urlpath.Match) string {
-	if len(match.Params) > 0 {
-		for key, value := range match.Params {
-			to = strings.ReplaceAll(to, ":"+key, value)
-		}
-	}
-
-	return to
-}
-
-// ReplaceSplat replaces all splats from the match in the provided string.
-func ReplaceSplat(to string, match urlpath.Match) string {
-	return strings.ReplaceAll(to, ":splat", match.Trailing)
 }
