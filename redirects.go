@@ -118,7 +118,7 @@ func ParseString(s string) ([]Rule, error) {
 func parseStatus(s string) (code int, err error) {
 	if strings.HasSuffix(s, "!") {
 		// See https://docs.netlify.com/routing/redirects/rewrites-proxies/#shadowing
-		return -1, fmt.Errorf("forced redirects (and \"shadowing\") are not supported by IPFS gateways")
+		return -1, fmt.Errorf("forced redirects (or \"shadowing\") are not supported by IPFS gateways")
 	}
 
 	code, err = strconv.Atoi(s)
