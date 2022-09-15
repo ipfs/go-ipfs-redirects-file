@@ -1,10 +1,10 @@
-# IPFS Redirects Parser
+# IPFS `_redirects` File Parser
 
-**Experimental**
-Parser for the IPFS HTTP Gateway's `_redirects` file format.
+This is a parser for the IPFS Web Gateway's `_redirects` file format.
 
-Currently this is a subset of Netlify's [redirects format](https://www.netlify.com/docs/redirects/).
-The details of the supported functionality are still in flux and will eventually be included in a [spec](https://github.com/ipfs/specs).
+## Specification
+
+Follow specification work at https://github.com/ipfs/specs/pull/290
 
 ## Format
 Currently only supports `from`, `to` and `status`.
@@ -31,8 +31,8 @@ from to [status]
 # Rewrite a path
 /pass-through /index.html    200
 
-# Show a custom 404 for this path
-/ecommerce    /store-closed  404
+# Show a custom 404 for everything under this path
+/ecommerce/*  /store-closed  404
 
 # Single page app rewrite
 /*    /index.html   200

@@ -1,4 +1,4 @@
-module github.com/ipfs-shipyard/go-ipfs-redirects
+module github.com/ipfs/go-ipfs-redirects-file
 
 go 1.18
 
