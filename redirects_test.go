@@ -58,12 +58,22 @@ func TestRule_IsRewrite(t *testing.T) {
 	})
 }
 
-func TestParse(t *testing.T) {
+func Test_Parse(t *testing.T) {
 	t.Run("with illegal force", func(t *testing.T) {
 		_, err := Parse(strings.NewReader(`
 		/home / 301!
 		`))
 
-		assert.Error(t, err, "forced redirects should return an error")
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "forced redirects")
+	})
+
+	t.Run("with illegal code", func(t *testing.T) {
+		_, err := Parse(strings.NewReader(`
+		/home / 42
+		`))
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "status code 42 is not supported")
 	})
 }

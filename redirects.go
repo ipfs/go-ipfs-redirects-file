@@ -158,5 +158,23 @@ func parseStatus(s string) (code int, err error) {
 	}
 
 	code, err = strconv.Atoi(s)
+	if err != nil {
+		return code, err
+	}
+
+	if !isValidStatusCode(code) {
+		return code, fmt.Errorf("status code %d is not supported", code)
+	}
+
 	return code, err
+}
+
+func isValidStatusCode(status int) bool {
+	validStatuses := []int{200, 301, 302, 303, 307, 308, 404, 410, 451}
+	for _, validStatus := range validStatuses {
+		if validStatus == status {
+			return true
+		}
+	}
+	return false
 }
