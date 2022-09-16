@@ -17,6 +17,9 @@ import (
 // 64 KiB
 const maxFileSizeInBytes = 65536
 
+// 64 KiB
+const maxFileSizeInBytes = 65536
+
 // A Rule represents a single redirection or rewrite rule.
 type Rule struct {
 	// From is the path which is matched to perform the rule.
