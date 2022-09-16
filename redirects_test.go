@@ -1,6 +1,7 @@
 package redirects
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 
@@ -75,5 +76,24 @@ func Test_Parse(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "status code 42 is not supported")
+	})
+
+	t.Run("with too large file", func(t *testing.T) {
+		// create a file larger than 64 KiB, using valid rules so the only possible error is the size
+		line := "/from /to 301"
+		bytesPerLine := len(line)
+		totalBytes := 0
+
+		var b bytes.Buffer
+		for totalBytes <= maxFileSizeInBytes {
+			totalBytes += bytesPerLine
+			b.WriteString(line + "\n")
+		}
+		text := b.String()
+
+		_, err := ParseString(text)
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "redirects file size cannot exceed")
 	})
 }
