@@ -143,6 +143,23 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 			Status: 301,
 		}
 
+		// from
+		if !strings.HasPrefix(rule.From, "/") {
+			return nil, fmt.Errorf("from path must begin with '/'")
+		}
+
+		if strings.Contains(rule.From, "*") && !strings.HasSuffix(rule.From, "*") {
+			return nil, fmt.Errorf("from path can only end with splat")
+		}
+
+		// to
+		if !strings.HasPrefix(rule.To, "/") {
+			_, err := url.Parse(rule.To)
+			if err != nil {
+				return nil, errors.Wrapf(err, "invalid to path")
+			}
+		}
+
 		// status
 		if len(fields) > 2 {
 			code, err := parseStatus(fields[2])
