@@ -13,6 +13,8 @@ import (
 	"github.com/ucarion/urlpath"
 )
 
+var validStatuses = []int{200, 301, 302, 303, 307, 308, 404, 410, 451}
+
 // A Rule represents a single redirection or rewrite rule.
 type Rule struct {
 	// From is the path which is matched to perform the rule.
@@ -154,23 +156,22 @@ func ParseString(s string) ([]Rule, error) {
 func parseStatus(s string) (code int, err error) {
 	if strings.HasSuffix(s, "!") {
 		// See https://docs.netlify.com/routing/redirects/rewrites-proxies/#shadowing
-		return -1, fmt.Errorf("forced redirects (or \"shadowing\") are not supported by IPFS gateways")
+		return 0, fmt.Errorf("forced redirects (or \"shadowing\") are not supported by IPFS gateways")
 	}
 
 	code, err = strconv.Atoi(s)
 	if err != nil {
-		return code, err
+		return 0, err
 	}
 
 	if !isValidStatusCode(code) {
-		return code, fmt.Errorf("status code %d is not supported", code)
+		return 0, fmt.Errorf("status code %d is not supported", code)
 	}
 
-	return code, err
+	return code, nil
 }
 
 func isValidStatusCode(status int) bool {
-	validStatuses := []int{200, 301, 302, 303, 307, 308, 404, 410, 451}
 	for _, validStatus := range validStatuses {
 		if validStatus == status {
 			return true
