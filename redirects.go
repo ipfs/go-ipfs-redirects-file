@@ -154,7 +154,10 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 	}
 
 	err = s.Err()
-	return
+	if err != nil {
+		return nil, err
+	}
+	return rules, nil
 }
 
 // ParseString parses the given string.
