@@ -154,9 +154,25 @@ func ParseString(s string) ([]Rule, error) {
 func parseStatus(s string) (code int, err error) {
 	if strings.HasSuffix(s, "!") {
 		// See https://docs.netlify.com/routing/redirects/rewrites-proxies/#shadowing
-		return -1, fmt.Errorf("forced redirects (or \"shadowing\") are not supported by IPFS gateways")
+		return 0, fmt.Errorf("forced redirects (or \"shadowing\") are not supported by IPFS gateways")
 	}
 
 	code, err = strconv.Atoi(s)
-	return code, err
+	if err != nil {
+		return 0, err
+	}
+
+	if !isValidStatusCode(code) {
+		return 0, fmt.Errorf("status code %d is not supported", code)
+	}
+
+	return code, nil
+}
+
+func isValidStatusCode(status int) bool {
+	switch status {
+	case 200, 301, 302, 303, 307, 308, 404, 410, 451:
+		return true
+	}
+	return false
 }
