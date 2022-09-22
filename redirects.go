@@ -13,8 +13,6 @@ import (
 	"github.com/ucarion/urlpath"
 )
 
-var validStatuses = []int{200, 301, 302, 303, 307, 308, 404, 410, 451}
-
 // A Rule represents a single redirection or rewrite rule.
 type Rule struct {
 	// From is the path which is matched to perform the rule.
@@ -172,10 +170,9 @@ func parseStatus(s string) (code int, err error) {
 }
 
 func isValidStatusCode(status int) bool {
-	for _, validStatus := range validStatuses {
-		if validStatus == status {
-			return true
-		}
+	switch status {
+	case 200, 301, 302, 303, 307, 308, 404, 410, 451:
+		return true
 	}
 	return false
 }
