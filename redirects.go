@@ -17,9 +17,6 @@ import (
 // 64 KiB
 const maxFileSizeInBytes = 65536
 
-// 64 KiB
-const maxFileSizeInBytes = 65536
-
 // A Rule represents a single redirection or rewrite rule.
 type Rule struct {
 	// From is the path which is matched to perform the rule.
@@ -129,11 +126,11 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 
 		// missing dst
 		if len(fields) <= 1 {
-			return nil, fmt.Errorf("missing destination path: %q", line)
+			return nil, fmt.Errorf("missing 'to' path: %q", line)
 		}
 
 		if len(fields) > 3 {
-			return nil, fmt.Errorf("must match format `from to [status][!]`")
+			return nil, fmt.Errorf("must match format 'from to [status]'")
 		}
 
 		// src and dst
@@ -145,18 +142,18 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 
 		// from
 		if !strings.HasPrefix(rule.From, "/") {
-			return nil, fmt.Errorf("from path must begin with '/'")
+			return nil, fmt.Errorf("'from' path must begin with '/'")
 		}
 
 		if strings.Contains(rule.From, "*") && !strings.HasSuffix(rule.From, "*") {
-			return nil, fmt.Errorf("from path can only end with splat")
+			return nil, fmt.Errorf("'from' path can only end with splat")
 		}
 
 		// to
 		if !strings.HasPrefix(rule.To, "/") {
 			_, err := url.Parse(rule.To)
 			if err != nil {
-				return nil, errors.Wrapf(err, "invalid to path")
+				return nil, errors.Wrapf(err, "invalid 'to' path")
 			}
 		}
 
