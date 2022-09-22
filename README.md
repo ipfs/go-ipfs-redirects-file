@@ -28,18 +28,23 @@ from to [status]
 # Redirect with a 302
 /my-redirect  /              302
 
-# Rewrite a path
-/pass-through /index.html    200
+# Redirect with wildcard (splat placeholder)
+/splat/* /redirected-splat/:splat 301
+
+# Redirect with multiple named placeholder
+/posts/:year/:month/:day/:title  /articles/:year/:month/:day/:title  301
 
 # Show a custom 404 for everything under this path
-/ecommerce/*  /store-closed  404
+/ecommerce/*  /store-closed.html  404
 
-# Single page app rewrite
+# Single page app rewrite (SPA, PWA)
 /*    /index.html   200
-
-# Proxying
-/api/*  https://api.example.com/:splat  200
 ```
+
+## Notes for contributors
+
+- `make all` builds and runs tests
+- `FUZZTIME=1m make fuzz` runs fuzzing for specified amount of time
 
 ---
 
