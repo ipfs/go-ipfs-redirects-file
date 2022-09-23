@@ -3,7 +3,6 @@ package redirects
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"net/url"
@@ -15,7 +14,7 @@ import (
 )
 
 // 64 KiB
-const maxFileSizeInBytes = 65536
+const MaxFileSizeInBytes = 65536
 
 // A Rule represents a single redirection or rewrite rule.
 type Rule struct {
@@ -31,8 +30,6 @@ type Rule struct {
 	// - 3xx a redirect
 	// - 200 a rewrite
 	// - defaults to 301 redirect
-	//
-	// When proxying this field is ignored.
 	//
 	Status int
 }
@@ -98,17 +95,15 @@ func Must(v []Rule, err error) []Rule {
 
 // Parse the given reader.
 func Parse(r io.Reader) (rules []Rule, err error) {
-	// not too large
-	b, err := bufio.NewReaderSize(r, maxFileSizeInBytes+1).Peek(maxFileSizeInBytes + 1)
-	if err != nil && err != io.EOF {
-		return nil, err
-	}
-	if len(b) > maxFileSizeInBytes {
-		return nil, fmt.Errorf("redirects file size cannot exceed %d bytes", maxFileSizeInBytes)
-	}
-
-	s := bufio.NewScanner(bytes.NewReader(b))
+	limiter := &io.LimitedReader{R: r, N: MaxFileSizeInBytes + 1}
+	s := bufio.NewScanner(limiter)
 	for s.Scan() {
+		// detect when we've read one byte beyond MaxFileSizeInBytes
+		// and return user-friendly error
+		if limiter.N <= 0 {
+			return nil, fmt.Errorf("redirects file size cannot exceed %d bytes", MaxFileSizeInBytes)
+		}
+
 		line := strings.TrimSpace(s.Text())
 
 		// empty
@@ -126,36 +121,29 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 
 		// missing dst
 		if len(fields) <= 1 {
-			return nil, fmt.Errorf("missing 'to' path: %q", line)
+			return nil, fmt.Errorf("missing 'to' path")
 		}
 
 		if len(fields) > 3 {
 			return nil, fmt.Errorf("must match format 'from to [status]'")
 		}
 
-		// src and dst
-		rule := Rule{
-			From:   fields[0],
-			To:     fields[1],
-			Status: 301,
-		}
+		// implicit status
+		rule := Rule{Status: 301}
 
-		// from
-		if !strings.HasPrefix(rule.From, "/") {
-			return nil, fmt.Errorf("'from' path must begin with '/'")
+		// from (must parse as an absolute path)
+		from, err := parseFrom(fields[0])
+		if err != nil {
+			return nil, errors.Wrapf(err, "parsing 'from'")
 		}
+		rule.From = from
 
-		if strings.Contains(rule.From, "*") && !strings.HasSuffix(rule.From, "*") {
-			return nil, fmt.Errorf("'from' path can only end with splat")
+		// to (must parse as an absolute path or an URL)
+		to, err := parseTo(fields[1])
+		if err != nil {
+			return nil, errors.Wrapf(err, "parsing 'to'")
 		}
-
-		// to
-		if !strings.HasPrefix(rule.To, "/") {
-			_, err := url.Parse(rule.To)
-			if err != nil {
-				return nil, errors.Wrapf(err, "invalid 'to' path")
-			}
-		}
+		rule.To = to
 
 		// status
 		if len(fields) > 2 {
@@ -182,11 +170,52 @@ func ParseString(s string) ([]Rule, error) {
 	return Parse(strings.NewReader(s))
 }
 
+func parseFrom(s string) (string, error) {
+	// enforce a single splat
+	fromSplats := strings.Count(s, "*")
+	if fromSplats > 0 {
+		if !strings.HasSuffix(s, "*") {
+			return "", fmt.Errorf("path must end with asterisk")
+		}
+		if fromSplats > 1 {
+			return "", fmt.Errorf("path can have at most one asterisk")
+		}
+	}
+
+	// confirm value is within URL path spec
+	_, err := url.Parse(s)
+	if err != nil {
+		return "", err
+	}
+
+	if !strings.HasPrefix(s, "/") {
+		return "", fmt.Errorf("path must begin with '/'")
+	}
+	return s, nil
+}
+
+func parseTo(s string) (string, error) {
+	// confirm value is within URL path spec
+	u, err := url.Parse(s)
+	if err != nil {
+		return "", err
+	}
+
+	// if the value is  a patch attached to full URL, only allow safelisted schemes
+	if !strings.HasPrefix(s, "/") {
+		if u.Scheme != "http" && u.Scheme != "https" && u.Scheme != "ipfs" && u.Scheme != "ipns" {
+			return "", fmt.Errorf("invalid URL scheme")
+		}
+	}
+
+	return s, nil
+}
+
 // parseStatus returns the status code.
 func parseStatus(s string) (code int, err error) {
 	if strings.HasSuffix(s, "!") {
 		// See https://docs.netlify.com/routing/redirects/rewrites-proxies/#shadowing
-		return 0, fmt.Errorf("forced redirects (or \"shadowing\") are not supported by IPFS gateways")
+		return 0, fmt.Errorf("forced redirects (or \"shadowing\") are not supported")
 	}
 
 	code, err = strconv.Atoi(s)
