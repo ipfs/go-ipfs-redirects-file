@@ -3,7 +3,6 @@ package redirects
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"net/url"
@@ -15,7 +14,7 @@ import (
 )
 
 // 64 KiB
-const maxFileSizeInBytes = 65536
+const MaxFileSizeInBytes = 65536
 
 // A Rule represents a single redirection or rewrite rule.
 type Rule struct {
@@ -96,17 +95,15 @@ func Must(v []Rule, err error) []Rule {
 
 // Parse the given reader.
 func Parse(r io.Reader) (rules []Rule, err error) {
-	// not too large
-	b, err := bufio.NewReaderSize(r, maxFileSizeInBytes+1).Peek(maxFileSizeInBytes + 1)
-	if err != nil && err != io.EOF {
-		return nil, err
-	}
-	if len(b) > maxFileSizeInBytes {
-		return nil, fmt.Errorf("redirects file size cannot exceed %d bytes", maxFileSizeInBytes)
-	}
-
-	s := bufio.NewScanner(bytes.NewReader(b))
+	limiter := &io.LimitedReader{R: r, N: MaxFileSizeInBytes + 1}
+	s := bufio.NewScanner(limiter)
 	for s.Scan() {
+		// detect when we've read one byte beyond MaxFileSizeInBytes
+		// and return user-friendly error
+		if limiter.N <= 0 {
+			return nil, fmt.Errorf("redirects file size cannot exceed %d bytes", MaxFileSizeInBytes)
+		}
+
 		line := strings.TrimSpace(s.Text())
 
 		// empty

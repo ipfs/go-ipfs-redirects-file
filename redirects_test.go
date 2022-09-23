@@ -87,7 +87,7 @@ func TestParse(t *testing.T) {
 		totalBytes := 0
 
 		var b bytes.Buffer
-		for totalBytes <= maxFileSizeInBytes {
+		for totalBytes <= MaxFileSizeInBytes {
 			totalBytes += bytesPerLine
 			b.WriteString(line + "\n")
 		}
