@@ -2,7 +2,6 @@ module github.com/ipfs/go-ipfs-redirects-file
 
 go 1.21
 
-
 require (
 	github.com/pkg/errors v0.9.1
 	github.com/tj/assert v0.0.3
