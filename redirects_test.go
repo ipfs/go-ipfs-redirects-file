@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRuleIsProxy(t *testing.T) {
@@ -17,7 +17,7 @@ func TestRuleIsProxy(t *testing.T) {
 			To:   "/blog/engineering",
 		}
 
-		assert.False(t, r.IsProxy())
+		require.False(t, r.IsProxy())
 	})
 
 	t.Run("with host", func(t *testing.T) {
@@ -26,7 +26,7 @@ func TestRuleIsProxy(t *testing.T) {
 			To:   "https://site.example.com",
 		}
 
-		assert.True(t, r.IsProxy())
+		require.True(t, r.IsProxy())
 	})
 }
 
@@ -38,7 +38,7 @@ func TestRuleIsRewrite(t *testing.T) {
 			Status: 302,
 		}
 
-		assert.False(t, r.IsRewrite())
+		require.False(t, r.IsRewrite())
 	})
 
 	t.Run("with 200", func(t *testing.T) {
@@ -48,7 +48,7 @@ func TestRuleIsRewrite(t *testing.T) {
 			Status: 200,
 		}
 
-		assert.True(t, r.IsRewrite())
+		require.True(t, r.IsRewrite())
 	})
 
 	t.Run("with 0", func(t *testing.T) {
@@ -57,7 +57,7 @@ func TestRuleIsRewrite(t *testing.T) {
 			To:   "/blog/engineering",
 		}
 
-		assert.False(t, r.IsRewrite())
+		require.False(t, r.IsRewrite())
 	})
 }
 
@@ -67,8 +67,8 @@ func TestParse(t *testing.T) {
 		/home / 301!
 		`))
 
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "forced redirects")
+		require.Error(t, err)
+		require.ErrorContains(t, err, "forced redirects")
 	})
 
 	t.Run("with illegal code", func(t *testing.T) {
@@ -76,8 +76,8 @@ func TestParse(t *testing.T) {
 		/home / 42
 		`))
 
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "status code 42 is not supported")
+		require.Error(t, err)
+		require.ErrorContains(t, err, "status code 42 is not supported")
 	})
 
 	t.Run("with too large file", func(t *testing.T) {
@@ -95,8 +95,8 @@ func TestParse(t *testing.T) {
 
 		_, err := ParseString(text)
 
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "redirects file size cannot exceed")
+		require.Error(t, err)
+		require.ErrorContains(t, err, "redirects file size cannot exceed")
 	})
 }
 
